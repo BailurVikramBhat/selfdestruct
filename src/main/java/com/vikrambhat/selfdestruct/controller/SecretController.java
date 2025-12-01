@@ -28,7 +28,7 @@ public class SecretController {
     @PostMapping
     public ResponseEntity<Map<String, String>> createSecret(@Valid @RequestBody SecretRequest request, HttpServletRequest servletRequest) {
 
-        String ip = servletRequest.getRemoteAddr();
+        String ip = getClientIp(servletRequest);
         Bucket bucket = rateLimitService.resolveBucket(ip);
 
         ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
@@ -56,4 +56,12 @@ public class SecretController {
             @NotBlank(message = "content cannot be empty")
             @Size(max = 1000, message = "Message is too long! Max 1000 characters.")
             String content) {}
+
+    private String getClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        return request.getRemoteAddr();
+    }
 }
