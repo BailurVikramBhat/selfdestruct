@@ -14,7 +14,7 @@ public class SecretService {
     }
     public String createSecret(String secretContent) {
         String id = UUID.randomUUID().toString();
-        redisTemplate.opsForValue().set(id, secretContent, Duration.ofSeconds(60));
+        redisTemplate.opsForValue().set(id, secretContent, Duration.ofMinutes(10));
         return id;
     }
 
